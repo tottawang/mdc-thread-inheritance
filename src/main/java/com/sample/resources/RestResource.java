@@ -16,6 +16,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,9 @@ import com.sample.service.HystrixService;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/api")
 public class RestResource {
+
+  private static final Logger logger = LoggerFactory.getLogger(RestResource.class);
+  private static int index = 0;
 
   private static int POOL_SIZE = 5;
   private static final ExecutorService workers = Executors.newFixedThreadPool(POOL_SIZE);
@@ -46,7 +51,8 @@ public class RestResource {
   @Path("hystrix-non-blocking-currency")
   public String getUserProjectsCurrency() throws InterruptedException, ExecutionException {
 
-    MDC.put("message-id", "my_test_msg_id");
+    MDC.put("message.id", "my_test_msg_id_" + ++index);
+    logger.info("ON_START rest call");
 
     String result = "";
     long start = System.currentTimeMillis();

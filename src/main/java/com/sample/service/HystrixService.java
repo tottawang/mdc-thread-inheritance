@@ -4,6 +4,8 @@ import java.net.URI;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,8 @@ import rx.Observer;
 @Component
 public class HystrixService {
 
+  private static final Logger logger = LoggerFactory.getLogger(HystrixService.class);
+
   private Setter cachedSetter;
 
   @Value("${HYSTRIX_TEST_URL:url_not_accessiable}")
@@ -55,14 +59,14 @@ public class HystrixService {
   public void wrapPublish() {
 
     Observable<String> pm = new PublishCommand("").observe();
-    System.out.println("Observer created " + Thread.currentThread().getName());
+    logger.info("ON_CREATED");
 
     // non-blocking
     pm.subscribe(new Observer<String>() {
 
       @Override
       public void onCompleted() {
-        System.out.println("Complete " + Thread.currentThread().getName());
+        logger.info("ON_COMPLETED");
       }
 
       @Override
@@ -72,6 +76,7 @@ public class HystrixService {
 
       @Override
       public void onNext(String v) {
+        logger.info(String.format("ON_NEXT with payload %s", v));
         System.out.println("onNEXT " + Thread.currentThread().getName() + " payload: " + v);
       }
 
@@ -90,6 +95,7 @@ public class HystrixService {
     @Override
     protected String run() {
       System.out.println(Thread.currentThread().getName() + ": " + " non blocking started");
+      logger.info(String.format("ON_PUBLISH_START with payload %s", payload));
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
       HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -97,6 +103,7 @@ public class HystrixService {
         URI endpointUrl = new URI(HYSTRIX_TEST_URL);
         ResponseEntity<String> responseEntity =
             restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, String.class);
+        logger.info(String.format("ON_PUBLISH_SUCCEED with payload %s", payload));
         return responseEntity.getBody() + " - " + payload;
       } catch (ResourceAccessException | HttpServerErrorException ex) {
         // Server side exception is a proper case for circuit breaker, hystrix will translate
