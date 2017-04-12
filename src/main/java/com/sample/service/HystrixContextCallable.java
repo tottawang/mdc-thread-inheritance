@@ -17,7 +17,13 @@ public class HystrixContextCallable<T> implements Callable<T> {
 
   @Override
   public T call() throws Exception {
-    MDC.setContextMap(parentMDC);
+
+    if (parentMDC != null) {
+      MDC.setContextMap(parentMDC);
+    } else {
+      // TODO give proper error logging
+    }
+
     return callable.call();
   }
 }

@@ -13,14 +13,14 @@
             <maxFileSize>20MB</maxFileSize>
         </triggeringPolicy>
         <encoder>
-            <pattern>%date %-5level - mdc=%X{message.id} [%X{X-Request-ID}] [%thread] [%logger{10}.%M] %msg%n
+            <pattern>%date %-5level - mdc.message.group=%X{message.group} mdc.message.id=%X{message.id} [%X{X-Request-ID}] [%thread] [%logger{10}.%M] %msg%n
             </pattern>
         </encoder>
     </appender>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%date %-5level - mdc=%X{message.id} [%X{X-Request-ID}] [%thread] [%logger{10}] %msg%n
+            <pattern>%date %-5level - mdc.message.group=%X{message.group} mdc.message.id=%X{message.id} [%X{X-Request-ID}] [%thread] [%logger{10}] %msg%n
             </pattern>
         </encoder>
     </appender>

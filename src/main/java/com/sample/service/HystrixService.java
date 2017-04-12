@@ -66,10 +66,9 @@ public class HystrixService {
     });
   }
 
-  public void wrapPublish() {
+  public void wrapPublish(Integer index) {
 
-
-    Observable<String> pm = new PublishCommand("").observe();
+    Observable<String> pm = new PublishCommand(index.toString()).observe();
     logger.info("ON_CREATED");
 
     // non-blocking
