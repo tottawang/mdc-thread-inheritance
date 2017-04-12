@@ -1,6 +1,7 @@
 package com.sample.service;
 
 import java.net.URI;
+import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
 
@@ -23,6 +24,9 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.sample.conf.Application;
 import com.sample.conf.HttpWebClient;
 
@@ -54,10 +58,18 @@ public class HystrixService {
         .andCommandKey(HystrixCommandKey.Factory.asKey(HttpWebClient.COMMAND_NON_BLOCKING_GET))
         .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
             .withExecutionTimeoutEnabled(true).withExecutionTimeoutInMilliseconds(timeout));
+
+    HystrixPlugins.getInstance().registerConcurrencyStrategy(new HystrixConcurrencyStrategy() {
+      @Override
+      public <T> Callable<T> wrapCallable(final Callable<T> callable) {
+        return new HystrixContextCallable<T>(callable);
+      }
+    });
   }
 
   public void wrapPublish() {
 
+    HystrixRequestContext.initializeContext();
     Observable<String> pm = new PublishCommand("").observe();
     logger.info("ON_CREATED");
 
