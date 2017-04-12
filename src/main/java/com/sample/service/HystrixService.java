@@ -26,7 +26,6 @@ import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
-import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.sample.conf.Application;
 import com.sample.conf.HttpWebClient;
 
@@ -69,7 +68,7 @@ public class HystrixService {
 
   public void wrapPublish() {
 
-    HystrixRequestContext.initializeContext();
+
     Observable<String> pm = new PublishCommand("").observe();
     logger.info("ON_CREATED");
 
