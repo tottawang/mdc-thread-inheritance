@@ -22,6 +22,7 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sample.service.AnotherHystrixService;
 import com.sample.service.HystrixService;
 
 @Component
@@ -37,13 +38,15 @@ public class RestResource {
   @Autowired
   private HystrixService service;
 
+  @Autowired
+  private AnotherHystrixService anotherHystrixService;
+
   @GET
   @Path("hystrix-non-blocking")
   public String getUserProjectsNonBlocking() {
-    long start = System.currentTimeMillis();
-    service.wrapPublish(Integer.valueOf(-1));
-    long end = System.currentTimeMillis();
-    System.out.println("Time taken to get results " + (end - start) + " milliseconds");
+    MDC.put("message.group", "msg_group_" + ++index);
+    MDC.put("message.id", "msg_id_" + index);
+    anotherHystrixService.annotatedHystrix("");
     return "";
   }
 
